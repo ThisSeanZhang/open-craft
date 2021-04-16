@@ -1,0 +1,4 @@
+core.gui:
+  selector: ${A_S:gui.web}
+  gui.web:
+    name: testGUI
