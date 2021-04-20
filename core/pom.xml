@@ -15,6 +15,7 @@
     <modules>
         <module>boot</module>
         <module>gui</module>
+        <module>boot-ui</module>
     </modules>
 
 </project>

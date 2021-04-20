@@ -29,12 +29,22 @@
         </dependency>
         <dependency>
             <groupId>io.whileaway.code.open.craft</groupId>
+            <artifactId>boot-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.whileaway.code.open.craft</groupId>
+            <artifactId>boot-ui-web</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.whileaway.code.open.craft</groupId>
             <artifactId>gui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.whileaway.code.open.craft</groupId>
-            <artifactId>gui-web</artifactId>
+            <artifactId>gui-lwjgl</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

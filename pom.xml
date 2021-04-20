@@ -25,6 +25,7 @@
         <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
         <maven-compiler.version>3.8.1</maven-compiler.version>
+        <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
     </properties>
 
     <dependencies>

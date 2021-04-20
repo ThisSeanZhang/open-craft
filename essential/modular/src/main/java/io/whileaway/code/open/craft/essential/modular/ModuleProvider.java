@@ -1,5 +1,6 @@
 package io.whileaway.code.open.craft.essential.modular;
 
+import io.whileaway.code.open.craft.essential.modular.exception.ServiceException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ public abstract class ModuleProvider {
         return this.getClass().getModule().getName();
     }
 
-    private final Map<Class<?>, Service> services = new HashMap<>();
+    private final Map<Class<? extends Service>, Service> services = new HashMap<>();
 
     public abstract ModuleConfig providerConfig();
 
@@ -40,6 +41,13 @@ public abstract class ModuleProvider {
      * prepare Service, register Service prepare to inject other module
      */
     public void prepare(Map<Class<? extends Service>, Service> provideServiceMap) {
+        provideServiceMap.forEach(services::put);
+    }
+
+    /**
+     * start Provider
+     */
+    public void start() throws ServiceException {
 
     }
 
@@ -48,6 +56,7 @@ public abstract class ModuleProvider {
         ModuleConfig config = providerConfig();
         if (Objects.isNull(config)) {
             log.info("provider config is null, while ignore!");
+            return;
         }
         Class<? extends ModuleConfig> destClass = config.getClass();
         List<Field> fields = Stream.of(destClass.getDeclaredFields())
@@ -63,5 +72,12 @@ public abstract class ModuleProvider {
                 }
             }
 
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Service> T getService(Class<T> serviceType) throws ServiceException {
+        Service service = services.get(serviceType);
+        if (Objects.nonNull(service)) return (T) service;
+        throw new ServiceException.ServiceNotProvidedException(serviceType.getName());
     }
 }

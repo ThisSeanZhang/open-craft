@@ -1,5 +1,6 @@
 module io.whileaway.code.open.craft.essential.util {
     exports io.whileaway.code.open.craft.essential.util;
+    exports io.whileaway.code.open.craft.essential.util.exception;
 
     requires transitive static lombok;
     requires transitive org.slf4j;

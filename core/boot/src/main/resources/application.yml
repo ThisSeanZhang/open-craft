@@ -1,4 +1,8 @@
 core.gui:
-  selector: ${A_S:gui.web}
-  gui.web:
+  selector: ${A_S:gui.lwjgl}
+  gui.lwjgl:
+    title: Open Craft do what you want
+core.boot.ui:
+  selector: ${A_S:-}
+  boot.ui.web:
     name: testGUI

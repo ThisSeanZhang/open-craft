@@ -1,14 +1,13 @@
-package io.whileaway.code.open.craft.core.gui;
+package io.whileaway.code.open.craft.core.boot.ui;
 
 import io.whileaway.code.open.craft.essential.modular.ModuleDefine;
 import io.whileaway.code.open.craft.essential.modular.Service;
 
 import java.util.Set;
 
-public class GUIModule extends ModuleDefine {
-
+public class BootUIModule extends ModuleDefine {
     @Override
     public Set<Class<? extends Service>> services() {
-        return Set.of(GameUIService.class);
+        return null;
     }
 }

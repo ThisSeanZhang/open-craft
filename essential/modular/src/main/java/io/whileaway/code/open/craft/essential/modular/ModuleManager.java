@@ -2,8 +2,12 @@ package io.whileaway.code.open.craft.essential.modular;
 
 import io.whileaway.code.open.craft.essential.modular.exception.ModuleException;
 import io.whileaway.code.open.craft.essential.modular.exception.ProvideException;
+import io.whileaway.code.open.craft.essential.modular.exception.ServiceException;
 import io.whileaway.code.open.craft.essential.util.CollectionUtils;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -14,7 +18,11 @@ public class ModuleManager {
 
     private final Map<String, ModuleDefine> loadedModules = new ConcurrentHashMap<>();
 
-    public void init(AppConfig config) throws ModuleException, ProvideException, IllegalAccessException {
+    @Setter
+    @Getter
+    private Path runtimePath;
+
+    public void init(AppConfig config) throws ModuleException, ProvideException, IllegalAccessException, ServiceException {
         List<String> withoutConfigModule = config.moduleList();
         ServiceLoader<ModuleDefine> moduleDefines = ServiceLoader.load(ModuleDefine.class);
         ServiceLoader<ModuleProvider> providersLoader = ServiceLoader.load(ModuleProvider.class);
