@@ -8,17 +8,19 @@ import io.whileaway.code.open.craft.essential.modular.annontion.Provide;
 import io.whileaway.code.open.craft.essential.modular.exception.ServiceException;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Map;
 
 @Provide(GUIModule.class)
 public class LWJGLGUIProvider extends ModuleProvider {
+
+    private final GUIConfig config = new GUIConfig();
+
     public LWJGLGUIProvider() {
         super(MethodHandles.lookup());
     }
 
     @Override
     public ModuleConfig providerConfig() {
-        return null;
+        return config;
     }
 
 //    @Override

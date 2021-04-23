@@ -8,7 +8,7 @@ import io.whileaway.code.open.craft.essential.modular.Service;
 import io.whileaway.code.open.craft.essential.modular.annontion.Provide;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Map;
+import java.util.List;
 
 @Provide(BootUIModule.class)
 public class BootUIWebProvider extends ModuleProvider {
@@ -25,10 +25,7 @@ public class BootUIWebProvider extends ModuleProvider {
     }
 
     @Override
-    public void prepare(Map<Class<? extends Service>, Service> provideServiceMap) {
-        provideServiceMap.forEach((key, value) -> {
-            System.out.println(key + ": " + value.getClass());
-        });
+    public void prepare(List<Service> services) {
         System.out.println("get Config name: " + config.getName());
     }
 }

@@ -41,33 +41,45 @@ public abstract class ModuleDefine {
         if (providers.size() > 1) throw new ProvideException.DuplicateProviderException(name(), providers);
         if (providers.size() == 0) throw new ProvideException.ProviderNotFoundException(name());
 
-        ModuleProvider provider = providers.get(0);
-        provider.setManager(manager);
-        provider.setModuleDefine(this);
+        loadedProvider = providers.get(0);
+        loadedProvider.setManager(manager);
+        loadedProvider.setModuleDefine(this);
 
-        provider.initProviderConfig(moduleConfig.getProviderConfig(provider.name()));
+        loadedProvider.initProviderConfig(moduleConfig.getProviderConfig(loadedProvider.name()));
 
 //        List<Service> allService = serviceLoader.stream()
 //                .map(ServiceLoader.Provider::get)
 //                .collect(Collectors.toList());
 //        services().stream()
 //                .collect(Collectors.toMap(Function.identity(), s -> s.isAssignableFrom())
-        Map<Class<? extends Service>, Service> provideServiceMap = serviceLoader.stream()
-//                .filter(this::isMyService)
+//        Map<Class<? extends Service>, Service> provideServiceMap = serviceLoader.stream()
+        List<Service> allMyService = serviceLoader.stream()
                 // service的包名是否包含provider的包名 如果包含则表示是这个provider的服务
-                .filter(s -> s.type().getPackageName().startsWith(provider.getClass().getPackageName()))
-                .map(ServiceLoader.Provider::get)
+                .filter(s -> s.type().getPackageName().startsWith(loadedProvider.getClass().getPackageName()))
+                .map(ServiceLoader.Provider::get).collect(Collectors.toList());
+        autoRegisterServiceToProvider(allMyService);
+//                .collect(HashMap::new, (map, service) -> {
+////                    System.out.println(service.getClass().getInterfaces());
+//                    Stream.of(service.getClass().getInterfaces())
+//                            .filter(Service.class::isAssignableFrom)
+//                            .forEach(i -> map.put((Class<Service>)i, service));
+//                } , HashMap::putAll);
+//        Collectors.toMap(Service::getClass, Function.identity());
+        loadedProvider.prepare(allMyService);
+        loadedProvider.start();
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    private void autoRegisterServiceToProvider(List<Service> allMyService) {
+        allMyService.stream()
                 .filter(s -> s.getClass().getInterfaces().length > 0)
-                .collect(HashMap::new, (map, service) -> {
-//                    System.out.println(service.getClass().getInterfaces());
+                .forEach(service -> {
                     Stream.of(service.getClass().getInterfaces())
                             .filter(Service.class::isAssignableFrom)
-                            .forEach(i -> map.put((Class<Service>)i, service));
-                } , HashMap::putAll);
-//        Collectors.toMap(Service::getClass, Function.identity());
-        loadedProvider = provider;
-        loadedProvider.prepare(provideServiceMap);
-        loadedProvider.start();
+                            .forEach(i -> loadedProvider.registerService((Class<Service>)i, service));
+                });
     }
 
     private boolean isMyProvider(ServiceLoader.Provider<ModuleProvider> provider) {

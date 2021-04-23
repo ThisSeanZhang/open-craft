@@ -40,8 +40,21 @@ public abstract class ModuleProvider {
     /**
      * prepare Service, register Service prepare to inject other module
      */
-    public void prepare(Map<Class<? extends Service>, Service> provideServiceMap) {
-        provideServiceMap.forEach(services::put);
+    public void prepare(List<Service> services) {
+        for (Service service: services) {
+            try {
+                Class<? extends Service> destClass = service.getClass();
+                Optional<Field> configField = Stream.of(destClass.getDeclaredFields()).filter(field -> field.getType().equals(providerConfig().getClass())).findAny();
+                if (configField.isPresent()) {
+                    Field field = configField.get();
+                    MethodHandles.Lookup privateLookupIn = MethodHandles.privateLookupIn(destClass, this.lookup);
+                    VarHandle config = privateLookupIn.findVarHandle(destClass, field.getName(), providerConfig().getClass());
+                    config.set(service, providerConfig());
+                }
+            } catch (IllegalAccessException|NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -79,5 +92,15 @@ public abstract class ModuleProvider {
         Service service = services.get(serviceType);
         if (Objects.nonNull(service)) return (T) service;
         throw new ServiceException.ServiceNotProvidedException(serviceType.getName());
+    }
+
+    public<T extends Service> void registerService(Class<T> serviceType, T service) {
+        if (serviceType.isInstance(service)) {
+            services.put(serviceType, service);
+        }
+    }
+
+    public void clearAllRegisterService() {
+        services.clear();
     }
 }

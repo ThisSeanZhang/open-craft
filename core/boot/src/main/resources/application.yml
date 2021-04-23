@@ -2,6 +2,7 @@ core.gui:
   selector: ${A_S:gui.lwjgl}
   gui.lwjgl:
     title: Open Craft do what you want
+    fullScreen: false
 core.boot.ui:
   selector: ${A_S:-}
   boot.ui.web:
