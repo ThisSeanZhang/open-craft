@@ -2,6 +2,7 @@ package io.whileaway.code.open.craft.core.gui.lwjgl;
 
 import io.whileaway.code.open.craft.core.gui.GameUIService;
 
+import io.whileaway.code.open.craft.core.gui.lwjgl.util.Time;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.lwjgl.*;
@@ -23,6 +24,11 @@ public class GameUIServiceImpl implements GameUIService {
     private GUIConfig config;
     GUIWindow guiWindow;
 
+    protected float r,g,b,a;
+    private boolean fadeToBlack = false;
+
+    private static Scene currentScene = null;
+
     @Override
     public void createGameUI() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -31,6 +37,15 @@ public class GameUIServiceImpl implements GameUIService {
         loop();
 
         guiWindow.destroy();
+    }
+
+    public void changeScene(int newScene) {
+        switch (newScene) {
+            case 0: currentScene = new LevelEditorScene(this);break;
+            case 1: currentScene = new LevelScene(this);break;
+            default:
+                System.out.print("Unknown Scene");
+        }
     }
 
     private void init() {
@@ -49,6 +64,7 @@ public class GameUIServiceImpl implements GameUIService {
 //            throw new RuntimeException("Failed to create the GLFW window");
 
         guiWindow = new GUIWindow(config);
+        r = g = b = a = 1.0f;
         window = guiWindow.getWindow();
         glfwSetCursorPosCallback(window, MouseListener::mousePosCallback);
         glfwSetMouseButtonCallback(window, MouseListener::mouseButtonCallback);
@@ -92,6 +108,9 @@ public class GameUIServiceImpl implements GameUIService {
     }
 
     private void loop() {
+
+        float beginTime = Time.getTime();
+        float endTime;
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
         // LWJGL detects the context that is current in the current thread,
@@ -99,22 +118,36 @@ public class GameUIServiceImpl implements GameUIService {
         // bindings available for use.
         GL.createCapabilities();
 
-        // Set the clear color
-        glClearColor(1.0f, 0.0f, 0.0f, 0.2f);
 
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-            glfwSwapBuffers(window); // swap the color buffers
-            if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
-                System.out.println("Press Space Key");
-            }
 
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
+
+            // Set the clear color
+            glClearColor(r,g,b,a);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+
+
+            if (fadeToBlack) {
+                r = Math.max(r - 0.01f, 0);
+                g = Math.max(r - 0.01f, 0);
+                b = Math.max(r - 0.01f, 0);
+                a = Math.max(r - 0.01f, 0);
+            }
+
+            if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+                fadeToBlack = true;
+            }
+
+            glfwSwapBuffers(window); // swap the color buffers
+
+            endTime = Time.getTime();
+            float dt = endTime - beginTime;
+            beginTime = endTime;
         }
     }
 
