@@ -9,10 +9,13 @@ public class LevelEditorScene extends Scene{
 
     public LevelEditorScene(GameUIServiceImpl window) {
         super(window);
+        System.out.println("Inside LevelEditorScene Scene");
     }
 
     @Override
-    public void update(float dt) {
+    public void update(long dt) {
+
+        System.out.println("" + (1E9f / dt) + "FPS");
 
         if(!changeScene && KeyListener.isKeyPressed(VK_SPACE)) {
             changeScene = true;

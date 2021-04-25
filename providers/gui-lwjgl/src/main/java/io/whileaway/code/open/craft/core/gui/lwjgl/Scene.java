@@ -8,5 +8,5 @@ public abstract class Scene {
         this.window = window;
     }
 
-    public abstract void update(float dt);
+    public abstract void update(long dt);
 }

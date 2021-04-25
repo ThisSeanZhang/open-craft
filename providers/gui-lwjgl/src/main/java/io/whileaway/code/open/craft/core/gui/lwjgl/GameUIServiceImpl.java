@@ -79,23 +79,23 @@ public class GameUIServiceImpl implements GameUIService {
 //        });
 
         // Get the thread stack and push a new frame
-        try ( MemoryStack stack = stackPush() ) {
-            IntBuffer pWidth = stack.mallocInt(1); // int*
-            IntBuffer pHeight = stack.mallocInt(1); // int*
-
-            // Get the window size passed to glfwCreateWindow
-            glfwGetWindowSize(window, pWidth, pHeight);
-
-            // Get the resolution of the primary monitor
-            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-            // Center the window
-            glfwSetWindowPos(
-                    window,
-                    (vidmode.width() - pWidth.get(0)) / 2,
-                    (vidmode.height() - pHeight.get(0)) / 2
-            );
-        } // the stack frame is popped automatically
+//        try ( MemoryStack stack = stackPush() ) {
+//            IntBuffer pWidth = stack.mallocInt(1); // int*
+//            IntBuffer pHeight = stack.mallocInt(1); // int*
+//
+//            // Get the window size passed to glfwCreateWindow
+//            glfwGetWindowSize(window, pWidth, pHeight);
+//
+//            // Get the resolution of the primary monitor
+//            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+//
+//            // Center the window
+//            glfwSetWindowPos(
+//                    window,
+//                    (vidmode.width() - pWidth.get(0)) / 2,
+//                    (vidmode.height() - pHeight.get(0)) / 2
+//            );
+//        } // the stack frame is popped automatically
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
@@ -105,12 +105,15 @@ public class GameUIServiceImpl implements GameUIService {
         // Make the window visible
 //        glfwShowWindow(window);
         guiWindow.show();
+
+        changeScene(0);
     }
 
     private void loop() {
 
-        float beginTime = Time.getTime();
-        float endTime;
+        long beginTime = Time.getTime();
+        long endTime;
+        long dt = -1;
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
         // LWJGL detects the context that is current in the current thread,
@@ -131,22 +134,12 @@ public class GameUIServiceImpl implements GameUIService {
             glClearColor(r,g,b,a);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
-
-            if (fadeToBlack) {
-                r = Math.max(r - 0.01f, 0);
-                g = Math.max(r - 0.01f, 0);
-                b = Math.max(r - 0.01f, 0);
-                a = Math.max(r - 0.01f, 0);
-            }
-
-            if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
-                fadeToBlack = true;
-            }
+            if (dt > 0) currentScene.update(dt);
 
             glfwSwapBuffers(window); // swap the color buffers
 
             endTime = Time.getTime();
-            float dt = endTime - beginTime;
+            dt = endTime - beginTime;
             beginTime = endTime;
         }
     }
