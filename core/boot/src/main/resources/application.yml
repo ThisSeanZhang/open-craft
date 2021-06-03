@@ -1,9 +1,9 @@
+core.boot.ui:
+  selector: ${A_S:boot.ui.web}
+  boot.ui.web:
+    name: testGUI
 core.gui:
   selector: ${A_S:gui.lwjgl}
   gui.lwjgl:
     title: Open Craft do what you want
     fullScreen: false
-core.boot.ui:
-  selector: ${A_S:-}
-  boot.ui.web:
-    name: testGUI

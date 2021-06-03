@@ -15,6 +15,7 @@ public abstract class ModuleDefine {
     @Getter
     private String name;
 
+    @Getter
     private ModuleProvider loadedProvider = null;
 
 
@@ -89,4 +90,5 @@ public abstract class ModuleDefine {
     private boolean isMyService(ServiceLoader.Provider<Service> provider) {
         return !services().isEmpty() && services().contains(provider.type());
     }
+
 }

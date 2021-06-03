@@ -7,11 +7,14 @@ import io.whileaway.code.open.craft.essential.util.CollectionUtils;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.lang.reflect.Constructor;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ModuleManager {
@@ -38,5 +41,21 @@ public class ModuleManager {
             loadedModules.put(module.name(), module);
         }
 
+    }
+
+    public Optional<ModuleDefine> findModule(String moduleName) {
+        return loadedModules.containsKey(moduleName) ? Optional.of(loadedModules.get(moduleName)) : Optional.empty();
+    }
+
+    public Function<Constructor<?>[], Constructor<?>> mostArgsConstruct() {
+        return cons -> {
+            Constructor<?> max = cons[0];
+            for (Constructor<?> constructor: cons) {
+                if (constructor.getParameterCount() >max.getParameterCount()) {
+                    max = constructor;
+                }
+            }
+            return max;
+        };
     }
 }

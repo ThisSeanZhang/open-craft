@@ -10,6 +10,7 @@ module gui.lwjgl {
     requires org.lwjgl.glfw;
     requires org.lwjgl.opengl;
     requires java.desktop;
+    requires core.boot.ui;
 
     provides Service with GameUIServiceImpl;
     provides ModuleProvider with LWJGLGUIProvider;

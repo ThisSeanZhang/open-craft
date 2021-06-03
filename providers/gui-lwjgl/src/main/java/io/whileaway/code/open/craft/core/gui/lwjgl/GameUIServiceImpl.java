@@ -1,8 +1,10 @@
 package io.whileaway.code.open.craft.core.gui.lwjgl;
 
+import io.whileaway.code.open.craft.core.boot.ui.GUIController;
 import io.whileaway.code.open.craft.core.gui.GameUIService;
 
 import io.whileaway.code.open.craft.core.gui.lwjgl.util.Time;
+import io.whileaway.code.open.craft.essential.modular.annontion.Inject;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.lwjgl.*;
@@ -22,6 +24,10 @@ public class GameUIServiceImpl implements GameUIService {
     private long window;
     @Setter
     private GUIConfig config;
+
+    @Inject
+    private GUIController controller;
+
     GUIWindow guiWindow;
 
     protected float r,g,b,a;
@@ -32,11 +38,12 @@ public class GameUIServiceImpl implements GameUIService {
     @Override
     public void createGameUI() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
-
-        init();
-        loop();
-
-        guiWindow.destroy();
+        controller.start();
+        System.out.println(controller);
+//        init();
+//        loop();
+//
+//        guiWindow.destroy();
     }
 
     public void changeScene(int newScene) {

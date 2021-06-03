@@ -1,5 +1,6 @@
 package io.whileaway.code.open.craft.essential.modular;
 
+import io.whileaway.code.open.craft.essential.modular.annontion.Inject;
 import io.whileaway.code.open.craft.essential.modular.exception.ServiceException;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.lang.module.ModuleDescriptor;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,15 +43,37 @@ public abstract class ModuleProvider {
      * prepare Service, register Service prepare to inject other module
      */
     public void prepare(List<Service> services) {
+        Map<Class<? extends Service>, Service> requireService = this.getClass().getModule().getDescriptor().requires().stream().map(ModuleDescriptor.Requires::name)
+                .map(manager::findModule)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(ModuleDefine::getLoadedProvider)
+                .map(ModuleProvider::allRegisterService)
+                .collect(HashMap::new, HashMap::putAll, HashMap::putAll);
+
         for (Service service: services) {
             try {
                 Class<? extends Service> destClass = service.getClass();
-                Optional<Field> configField = Stream.of(destClass.getDeclaredFields()).filter(field -> field.getType().equals(providerConfig().getClass())).findAny();
+                Optional<Field> configField = Stream.of(destClass.getDeclaredFields())
+                        .filter(field -> field.getType().equals(providerConfig().getClass()))
+                        .findAny();
                 if (configField.isPresent()) {
                     Field field = configField.get();
                     MethodHandles.Lookup privateLookupIn = MethodHandles.privateLookupIn(destClass, this.lookup);
                     VarHandle config = privateLookupIn.findVarHandle(destClass, field.getName(), providerConfig().getClass());
                     config.set(service, providerConfig());
+                }
+                List<Field> injectField = Stream.of(destClass.getDeclaredFields())
+                        .filter(field -> field.isAnnotationPresent(Inject.class))
+                        .collect(Collectors.toList());
+                for (Field field: injectField) {
+                    if (!requireService.containsKey(field.getType())) {
+                        log.error("can not inject {}, not Found", field.getName());
+                        continue;
+                    }
+                    MethodHandles.Lookup privateLookupIn = MethodHandles.privateLookupIn(destClass, this.lookup);
+                    VarHandle config = privateLookupIn.findVarHandle(destClass, field.getName(), field.getType());
+                    config.set(service, requireService.get(field.getType()));
                 }
             } catch (IllegalAccessException|NoSuchFieldException e) {
                 e.printStackTrace();
@@ -87,6 +111,9 @@ public abstract class ModuleProvider {
 
     }
 
+    public Map<Class<? extends Service>, Service> allRegisterService() {
+        return services;
+    }
     @SuppressWarnings("unchecked")
     public <T extends Service> T getService(Class<T> serviceType) throws ServiceException {
         Service service = services.get(serviceType);
